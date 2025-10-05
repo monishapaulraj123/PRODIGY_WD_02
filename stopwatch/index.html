@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stopwatch</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #001F3F 0%, #001a33 50%, #000d1a 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .stopwatch {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-radius: 25px;
+      padding: 40px 30px;
+      box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 10px rgba(255, 215, 0, 0.4);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      border: 2px solid #FFD700; /* Golden border */
+      transition: transform 0.3s ease;
+    }
+
+    .stopwatch:hover {
+      transform: translateY(-5px);
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      color: #FFD700;
+      font-size: 2.8rem;
+      margin-bottom: 30px;
+      text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+      font-weight: 500;
+      letter-spacing: 1px;
+    }
+
+    .display {
+      font-family: 'Inter', monospace;
+      font-size: 3.2rem;
+      font-weight: 400;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 20px;
+      margin-bottom: 35px;
+      border: 2px solid #FFD700; /* Golden border */
+      backdrop-filter: blur(10px);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    button {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: 1.1rem;
+      padding: 16px 25px;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    #startBtn {
+      background: linear-gradient(135deg, #FFD700, #DAA520);
+      color: #000;
+    }
+
+    #pauseBtn {
+      background: linear-gradient(135deg, #4169E1, #1E90FF);
+    }
+
+    #resetBtn {
+      background: linear-gradient(135deg, #8B0000, #B22222);
+    }
+
+    #lapBtn {
+      background: linear-gradient(135deg, #20B2AA, #00CED1);
+      grid-column: span 2;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+    }
+
+    .laps {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 25px;
+      max-height: 250px;
+      overflow-y: auto;
+      backdrop-filter: blur(10px);
+      border: 1.5px solid #FFD700; /* Golden border */
+    }
+
+    .laps h2 {
+      color: #FFD700;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+      font-weight: 400;
+      text-shadow: 0 1px 5px rgba(255, 215, 0, 0.3);
+    }
+
+    .laps li {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      padding: 12px 18px;
+      margin: 10px 0;
+      border-radius: 12px;
+      font-size: 1rem;
+      border-left: 4px solid #FFD700;
+      animation: slideIn 0.4s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .laps::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .laps::-webkit-scrollbar-thumb {
+      background: linear-gradient(135deg, #FFD700, #DAA520);
+      border-radius: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .stopwatch {
+        padding: 30px 20px;
+      }
+      h1 {
+        font-size: 2.2rem;
+      }
+      .display {
+        font-size: 2.5rem;
+      }
+      .controls {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      button {
+        grid-column: span 1 !important;
+        padding: 14px 20px;
+      }
+      #lapBtn {
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stopwatch">
+    <h1>Stopwatch</h1>
+    <div class="display" id="display">00:00:00:00</div>
+    <div class="controls">
+      <button id="startBtn">Start</button>
+      <button id="pauseBtn">Pause</button>
+      <button id="resetBtn">Reset</button>
+      <button id="lapBtn">Lap</button>
+    </div>
+    <div class="laps">
+      <h2>Lap Times</h2>
+      <ul id="lapList"></ul>
+    </div>
+  </div>
+
+  <script>
+    let startTime;
+    let updatedTime;
+    let difference;
+    let tInterval;
+    let running = false;
+    let lapCount = 0;
+
+    const display = document.getElementById('display');
+    const lapList = document.getElementById('lapList');
+
+    function startTimer() {
+      if (!running) {
+        startTime = new Date().getTime() - (difference || 0);
+        tInterval = setInterval(updateTime, 10);
+        running = true;
+      }
+    }
+
+    function updateTime() {
+      updatedTime = new Date().getTime();
+      difference = updatedTime - startTime;
+
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+      const milliseconds = Math.floor((difference % 1000) / 10);
+
+      display.innerHTML =
+        (hours < 10 ? "0" + hours : hours) + ":" +
+        (minutes < 10 ? "0" + minutes : minutes) + ":" +
+        (seconds < 10 ? "0" + seconds : seconds) + ":" +
+        (milliseconds < 10 ? "0" + milliseconds : milliseconds);
+    }
+
+    function pauseTimer() {
+      clearInterval(tInterval);
+      running = false;
+    }
+
+    function resetTimer() {
+      clearInterval(tInterval);
+      running = false;
+      difference = 0;
+      display.innerHTML = "00:00:00:00";
+      lapList.innerHTML = '';
+      lapCount = 0;
+    }
+
+    function recordLap() {
+      if (running) {
+        lapCount++;
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+        const milliseconds = Math.floor((difference % 1000) / 10);
+
+        const lapTime =
+          (hours < 10 ? "0" + hours : hours) + ":" +
+          (minutes < 10 ? "0" + minutes : minutes) + ":" +
+          (seconds < 10 ? "0" + seconds : seconds) + ":" +
+          (milliseconds < 10 ? "0" + milliseconds : milliseconds);
+
+        const lapItem = document.createElement('li');
+        lapItem.textContent = `Lap ${lapCount}: ${lapTime}`;
+        lapList.appendChild(lapItem);
+        lapList.scrollTop = lapList.scrollHeight;
+      }
+    }
+
+    document.getElementById('startBtn').addEventListener('click', startTimer);
+    document.getElementById('pauseBtn').addEventListener('click', pauseTimer);
+    document.getElementById('resetBtn').addEventListener('click', resetTimer);
+    document.getElementById('lapBtn').addEventListener('click', recordLap);
+  </script>
+</body>
+</html>
